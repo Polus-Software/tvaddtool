@@ -1,0 +1,293 @@
+.section-top {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 40px;
+}
+
+.table-container {
+    box-shadow: 0 0.5rem 1rem 0.5rem rgb(0 0 0 / 15%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: auto;
+}
+
+.table-container table {
+    margin: auto;
+    border-spacing: 0 15px !important;
+    border-collapse: separate !important;
+}
+
+.reg-table span {
+    text-align: left;
+}
+
+.form-row label {
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.form-control {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #48647f !important;
+}
+
+.mandatory-indicator {
+    font-size: 14px;
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.btn-primary-custom {
+    background-color: #27aea2 !important;
+    border-color: #27aea2 !important;
+}
+
+.success-container {
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    position: absolute;
+    background: #fdfdff;
+    width: 700px;
+    height: 300px;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0.5rem 1rem 0.5rem rgb(0 0 0 / 15%);
+}
+
+.f-20 {
+    font-size: 1.2rem;
+}
+
+.input-invalid {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.text-invalid {
+    font-size: small !important;
+    float: left !important;
+    color: #dc3545 !important;
+}
+
+.mb-15 {
+    margin-bottom: 15px;
+}
+
+.text-link {
+    font-weight: 500;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.text-link:hover {
+    color: #2c77f4;
+}
+
+.password-icon {
+    position: absolute;
+    right: 10px;
+    top: 34px;
+    color: #9E9E9E;
+    cursor: pointer;
+}
+
+.instruction-container {
+    border: solid 1px #d7c4da;
+    border-radius: 3px;
+    background-color: #fbf5ff;
+    padding: 15px;
+}
+
+.instruction-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.instruction-container li {
+    text-align: left;
+    font-size: 14px;
+    display: flex;
+}
+
+.bg-left {
+    background-color: #27aea2;
+    clip-path: circle(100vh at 0 50%);
+    position: fixed !important;
+    height: 100vh;
+}
+
+@media only screen and (min-width: 1400px) {
+    .bg-left {
+        clip-path: circle(100vh at -204px 50%);
+    }
+}
+
+@media only screen and (min-width: 1920px) {
+    .bg-left {
+        clip-path: circle(100vh at -10px 50%);
+    }
+}
+
+.success-banner {
+    color: #007985;
+    background-color: #dff5f9;
+    border-color: #81b7b2;
+    font-size: small;
+}
+
+.modal {
+    font-size: 14px !important;
+}
+
+button:disabled, input[type=checkbox]:disabled {
+    cursor: not-allowed;
+}
+
+.disabled-bg {
+    background-color: #e9ecef !important;
+}
+
+.form-control.is-invalid, .was-validated .form-control:invalid {
+    border-color: #dc3545;
+}
+
+.logo {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.mySkinDialog .modal-header {
+    padding: 10px 15px;
+    border-bottom: solid 1px #e2e2e2;
+    border-radius: 0 !important;
+}
+
+.mySkinDialog .modal-header .close {
+    padding: 1rem;
+    margin: -0.3rem -1rem -1rem auto;
+    line-height: 0;
+    text-shadow: none;
+    opacity: 1;
+}
+
+.mySkinDialog .modal-header .close {
+    color: #48647f;
+}
+
+.mySkinDialog .modal-header .close:focus {
+    outline: 0;
+}
+
+.mySkinDialog .modal-title {
+    font-size: 1.2rem;
+}
+
+.mySkinDialog .modal-title {
+    color: #48647f;
+}
+
+.mySkinDialog .modal-body {
+    padding: 15px;
+}
+
+.mySkinDialog .modal-body {
+    background: #fff;
+}
+
+.mySkinDialog .modal-footer {
+    padding-top: 10px;
+    border-top: 1px solid #ebedf2;
+}
+
+.mySkinDialog .modal-footer {
+    background: #fff;
+}
+
+.mySkinDialog .modal-footer .btn-secondary, .mySkinDialog .modal-footer .btn-primary-sub {
+    min-width: 5em;
+}
+
+.mySkinDialog .modal-footer .btn-secondary {
+    background: transparent;
+}
+
+.mySkinDialog .modal-footer .btn-secondary {
+    color: #1E847B;
+    border: 1px solid #1E847B;
+}
+
+.mySkinDialog .modal-footer .btn-secondary:hover {
+    background-color: #1E847B;
+    border-color: #1E847B;
+    color: #fff;
+}
+
+.mySkinDialog .modal-footer> :not(:first-child) {
+    margin-left: 0.5rem;
+}
+
+.mySkinDialog .modal-content {
+    box-shadow: 0 10px 50px 0 rgba(0, 0, 0, 0.5);
+    border: 0;
+    border-radius: 0;
+}
+
+.mySkinDialog .modal-content {
+    background-color: #fff;
+    border-left: 6px solid #1E847B;
+}
+
+.mySkinDialog p {
+    font-size: 1rem;
+    color: #505050;
+}
+
+.mySkinDialog b {
+    font-size: 1rem;
+}
+
+.mySkinDialog .gridskin .row {
+    margin: 0;
+    padding: 10px;
+    background: #ffff;
+    border: solid 1px #ececec;
+}
+
+.mySkinDialog label+span {
+    color: #48647f;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.mySkinDialog table thead tr {
+    background-color: #f8f9f8 !important;
+}
+
+.mySkinDialog table thead tr th {
+    color: #48647f !important;
+    font-weight: 600;
+}
+
+.mySkinDialog .scroll-table {
+    height: 200px !important;
+}
+
+.form-control.is-invalid, .was-validated .form-control:invalid {
+    background-image: none !important;
+}
