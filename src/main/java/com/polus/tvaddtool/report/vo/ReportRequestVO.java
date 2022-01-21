@@ -13,6 +13,10 @@ public class ReportRequestVO {
 
 	private List<ReportResponseVO> reportResponseVOs;
 
+	private String exportType;
+
+	private String documentHeading;
+
 	public Integer getClientId() {
 		return clientId;
 	}
@@ -43,6 +47,22 @@ public class ReportRequestVO {
 
 	public void setReportResponseVOs(List<ReportResponseVO> reportResponseVOs) {
 		this.reportResponseVOs = reportResponseVOs;
+	}
+
+	public String getExportType() {
+		return exportType;
+	}
+
+	public void setExportType(String exportType) {
+		this.exportType = exportType;
+	}
+
+	public String getDocumentHeading() {
+		return documentHeading;
+	}
+
+	public void setDocumentHeading(String documentHeading) {
+		this.documentHeading = documentHeading;
 	}
 
 }

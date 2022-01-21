@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -22,9 +23,11 @@ import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackagePartName;
 import org.apache.poi.openxml4j.opc.PackagingURIHelper;
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Header;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -45,11 +48,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.polus.tvaddtool.client.dao.ClientDao;
 import com.polus.tvaddtool.client.pojo.BroadcastSchedule;
 import com.polus.tvaddtool.client.pojo.ClientRequest;
 import com.polus.tvaddtool.client.pojo.ClientTag;
 import com.polus.tvaddtool.report.dao.ReportDao;
+import com.polus.tvaddtool.report.vo.PdfHeaderFooterPageEvent;
 import com.polus.tvaddtool.report.vo.ReportRequestVO;
 import com.polus.tvaddtool.report.vo.ReportResponseVO;
 import com.polus.tvaddtool.report.vo.VmlDrawing;
@@ -59,7 +74,13 @@ import com.polus.tvaddtool.report.vo.VmlDrawing;
 public class ReportServiceimpl implements ReportService {
 
 	protected static Logger logger = LogManager.getLogger(ReportServiceimpl.class.getName());
+
 	private static final int NORMAL_WIDTH = 4000;
+
+	//PDF Header and Footer positions
+    private static Integer IMAGE_X_POSITION = 330;
+    private static Integer IMAGE_Y_POSITION = 518;
+    private static Integer HEADER_Y_POSITION = 570;
 
 	@Autowired
 	private ClientDao clientDao;
@@ -79,13 +100,13 @@ public class ReportServiceimpl implements ReportService {
 			clientRequests = reportDao.fetchClientRequestsByParams(clientId, reportRequestVO.getStartDate(), reportRequestVO.getEndDate());
 			broadcastSchedules = reportDao.fetchBroadcastSchedulesByParams(clientId, reportRequestVO.getStartDate(), reportRequestVO.getEndDate());
 			for (ClientRequest request : clientRequests) {
-				Boolean isTagFound = false;
+				Boolean isTagFound = Boolean.FALSE;
 				for (ClientTag tag : clientTags) {
 					if (request.getWebsiteURL().toUpperCase().contains(tag.getName().toUpperCase())) {
-						isTagFound = true;
+						isTagFound = Boolean.TRUE;
 					}
 				}
-				if (isTagFound == false) {
+				if (isTagFound.equals(Boolean.FALSE)) {
 					Timestamp createdDate = request.getCreatedDate();
 					logger.info("createdDate : {}", createdDate);
 					for (BroadcastSchedule schedule : broadcastSchedules) {
@@ -141,10 +162,10 @@ public class ReportServiceimpl implements ReportService {
 		XSSFSheet sheet = workbook.createSheet("Exported Data");
 		addDetailsInHeader(workbook, sheet);
 		XSSFCellStyle tableBodyStyle = workbook.createCellStyle();
-		int rowNumber = prepareExcelSheetHeader(sheet, reportRequestVO, workbook, tableBodyStyle, 0);
+		int rowNumber = prepareExcelSheetHeader(sheet, workbook, tableBodyStyle, 0);
 		addDataToSheet(rowNumber, sheet, reportRequestVO, tableBodyStyle);
 		try {
-			return getResponseEntityForDownload(workbook);
+			return getResponseEntityForDownload(workbook, reportRequestVO.getExportType(), reportRequestVO.getDocumentHeading());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -208,7 +229,7 @@ public class ReportServiceimpl implements ReportService {
     }
 
 	@SuppressWarnings("deprecation")
-	private int prepareExcelSheetHeader(XSSFSheet sheet, ReportRequestVO vo, XSSFWorkbook workbook, XSSFCellStyle tableBodyStyle, int rowNumber) {
+	private int prepareExcelSheetHeader(XSSFSheet sheet, XSSFWorkbook workbook, XSSFCellStyle tableBodyStyle, int rowNumber) {
 		int headingCellNumber = 0;
 		int rowIndex = rowNumber;
 		XSSFRow tableHeadRow = sheet.createRow(rowIndex);
@@ -314,13 +335,108 @@ public class ReportServiceimpl implements ReportService {
         return attachmentData;
     }
 
-	public ResponseEntity<byte[]> getResponseEntityForDownload(XSSFWorkbook workbook) throws Exception {
+	public ResponseEntity<byte[]> getResponseEntityForDownload(XSSFWorkbook workbook, String exportType, String documentHeading) throws Exception {
 		logger.info("--------- getResponseEntityForExcelOrPDFDownload ---------");
 		byte[] byteArray = null;
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		workbook.write(bos);
-		byteArray = bos.toByteArray();
+		if (exportType != null && exportType.equals("pdf")) {
+			byteArray = generatePDFFileByteArray(documentHeading, workbook);
+		} else {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			workbook.write(bos);
+			byteArray = bos.toByteArray();
+		}
 		return getResponseEntity(byteArray);
 	}
+
+	public byte[] generatePDFFileByteArray(String documentHeading, XSSFWorkbook workbook) {
+        byte[] byteArray = null;
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            if (workbook.getNumberOfSheets() != 0) {
+                XSSFSheet worksheet = workbook.getSheetAt(0);
+                Iterator<Row> rowIterator = worksheet.iterator();
+                Document document = new Document();
+                document.setPageSize(PageSize.A4.rotate());
+                document.setMargins(40, 40, 80, 40);
+                PdfWriter writer = PdfWriter.getInstance(document, byteArrayOutputStream);
+                addPdfHeaderAndFooter(writer);
+                document.open();
+                Font pdfTitleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 13);
+                Paragraph paragraph = new Paragraph(documentHeading, pdfTitleFont);
+                paragraph.setAlignment(Element.ALIGN_CENTER);
+                document.add(paragraph);
+                document.add(Chunk.NEWLINE);
+                int columnCount = getColumnsCount(worksheet);
+                PdfPTable table = new PdfPTable(columnCount);
+                PdfPCell table_cell;
+                Font tableHeadingFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
+                Font tableBodyFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL);
+                while (rowIterator.hasNext()) {
+                    Row row = rowIterator.next();
+                    int rowIndex = row.getRowNum();
+                    Iterator<Cell> cellIterator = row.cellIterator();
+                    while (cellIterator.hasNext()) {
+                        Cell cell = cellIterator.next();
+                        switch (cell.getCellType()) {
+                            case STRING:
+                                if (rowIndex == 0) {
+                                } else if (rowIndex == 1) {
+                                    table_cell = new PdfPCell(new Phrase(cell.getStringCellValue(), tableHeadingFont));
+                                    table.addCell(table_cell);
+                                } else {
+                                    table_cell = new PdfPCell(new Phrase(cell.getStringCellValue(), tableBodyFont));
+                                    table.addCell(table_cell);
+                                }
+                                break;
+                            case NUMERIC:
+                                Double cellValueInDouble = cell.getNumericCellValue();
+                                Integer cellValueInInteger = cellValueInDouble.intValue();
+                                String cellValueInString = Integer.toString(cellValueInInteger);
+                                table_cell = new PdfPCell(new Phrase(cellValueInString, tableBodyFont));
+                                table.addCell(table_cell);
+                                break;
+						default:
+							break;
+                        }
+                    }
+                }
+                document.add(table);
+                document.close();
+            }
+            byteArray = byteArrayOutputStream.toByteArray();
+        } catch (Exception e) {
+            logger.error("Error in method generatePDFFileByteArray", e);
+        }
+        return byteArray;
+    }
+
+	public PdfWriter addPdfHeaderAndFooter(PdfWriter writer) {
+        PdfHeaderFooterPageEvent event = new PdfHeaderFooterPageEvent(HEADER_Y_POSITION, IMAGE_X_POSITION, IMAGE_Y_POSITION);
+        writer.setPageEvent(event);
+        return writer;
+	}
+
+	private int getColumnsCount(XSSFSheet xssfSheet) {
+        int columnCount = 0;
+        Iterator<Row> rowIterator = xssfSheet.iterator();
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+            List<Cell> cells = new ArrayList<>();
+            Iterator<Cell> cellIterator = row.cellIterator();
+            while (cellIterator.hasNext()) {
+                cells.add(cellIterator.next());
+            }
+            for (int cellIndex = cells.size(); cellIndex >= 1; cellIndex--) {
+                Cell cell = cells.get(cellIndex - 1);
+                if (cell.toString().trim().isEmpty()) {
+                    cells.remove(cellIndex - 1);
+                } else {
+                    columnCount = cells.size() > columnCount ? cells.size() : columnCount;
+                    break;
+                }
+            }
+        }
+        return columnCount;
+    }
 
 }
