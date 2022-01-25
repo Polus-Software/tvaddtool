@@ -19,4 +19,6 @@ public interface ClientService {
 
 	public void saveWebRequests(ClientRequest clientRequest);
 
+	public String getClientById(ClientVO clientVO);
+
 }

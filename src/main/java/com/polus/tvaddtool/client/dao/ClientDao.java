@@ -42,4 +42,6 @@ public interface ClientDao {
 
 	public String convertObjectToJSON(Object object);
 
+	public Client getClientById(Integer clientId);
+
 }

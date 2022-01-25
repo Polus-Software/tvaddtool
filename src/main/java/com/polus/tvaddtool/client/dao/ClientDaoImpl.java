@@ -278,4 +278,9 @@ public class ClientDaoImpl implements ClientDao {
 		return response;
 	}
 
+	@Override
+	public Client getClientById(Integer clientId) {
+		return hibernateTemplate.get(Client.class, clientId);
+	}
+
 }

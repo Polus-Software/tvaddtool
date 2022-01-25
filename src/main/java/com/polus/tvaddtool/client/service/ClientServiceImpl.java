@@ -245,4 +245,12 @@ public class ClientServiceImpl implements ClientService {
 		clientDao.saveOrUpdateClientRequest(clientRequest);
 	}
 
+	@Override
+	public String getClientById(ClientVO clientVO) {
+		Client client = clientDao.getClientById(clientVO.getClientId());
+		client.setClientTags(clientDao.fetchAllClientTagsByClientId(client.getId()));
+		clientVO.setClient(client);
+		return clientDao.convertObjectToJSON(clientVO);
+	}
+
 }

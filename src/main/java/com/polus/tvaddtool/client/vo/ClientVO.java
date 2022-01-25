@@ -15,6 +15,8 @@ public class ClientVO {
 
 	private List<BroadcastSchedule> broadcastSchedules;
 
+	private Client client;
+
 	public List<Client> getClients() {
 		return clients;
 	}
@@ -45,5 +47,13 @@ public class ClientVO {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public Client getClient() {
+		return client;
+	}
+
+	public void setClient(Client client) {
+		this.client = client;
 	}
 }

@@ -57,4 +57,11 @@ public class ClientController {
 		clientService.saveWebRequests(clientRequest);
 	}
 
+	@PostMapping(value = "/getClientById")
+	public String getClientById(@RequestBody ClientVO vo, HttpServletRequest request) {
+		logger.info("Requesting for getClientById");
+		logger.info("clientId : {}", vo.getClientId());
+		return clientService.getClientById(vo);
+	}
+
 }
