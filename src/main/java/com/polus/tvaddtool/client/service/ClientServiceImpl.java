@@ -68,10 +68,12 @@ public class ClientServiceImpl implements ClientService {
 			if (multipartFile != null) {
 				File file = convertMultiPartToFile(multipartFile);
 				List<Integer> broadcastScheduleIds = clientDao.getBroadcastScheduleIdByClientId(clientId);
-				if (broadcastScheduleIds != null && !broadcastScheduleIds.isEmpty()) {
+				if (file != null && broadcastScheduleIds != null && !broadcastScheduleIds.isEmpty()) {
 					clientDao.deleteBroadcastScheduleByIds(broadcastScheduleIds);
 				}
-				broadcastingExcelFileProcessing(file, getExcelRowCount(file), clientId);
+				if (file != null) {
+					broadcastingExcelFileProcessing(file, getExcelRowCount(file), clientId);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -95,11 +97,15 @@ public class ClientServiceImpl implements ClientService {
 	}
 
 	private File convertMultiPartToFile(MultipartFile file) throws IOException {
-		File convFile = new File(file.getOriginalFilename());
-		FileOutputStream fos = new FileOutputStream(convFile);
-		fos.write(file.getBytes());
-		fos.close();
-		return convFile;
+		String fileName = file.getOriginalFilename();
+		if (fileName != null && !fileName.isEmpty()) {
+			File convFile = new File(fileName);
+			FileOutputStream fos = new FileOutputStream(convFile);
+			fos.write(file.getBytes());
+			fos.close();
+			return convFile;
+		}
+		return null;
 	}
 
 	private Integer getExcelRowCount(File file) throws IOException {
